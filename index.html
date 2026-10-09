@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Home chores</title>
+<meta name="theme-color" content="#2b59d9">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Home">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-512.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap">
+<style>
+:root{--bg:#edf1f5;--card:#fff;--fg:#18202b;--mut:#66727f;--line:#d5dce4;--acc:#2b59d9;--onacc:#fff;--ok:#1f9d6b;--warn:#d6962a;--bad:#d1453b}
+@media (prefers-color-scheme:dark){:root{--bg:#12171e;--card:#1b222b;--fg:#e8edf2;--mut:#93a0ad;--line:#2d3743;--acc:#6f95ff;--onacc:#0c1220;--ok:#41c593;--warn:#e8b04f;--bad:#ff7b70}}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:400 16px/1.4 "DM Sans",system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-tap-highlight-color:transparent;padding-top:env(safe-area-inset-top,0px)}
+header{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:8px;padding:12px 16px;background:var(--bg);border-bottom:1px solid var(--line)}
+h1{font-size:22px;margin:0 auto 0 0;font-weight:700;letter-spacing:-.01em;display:flex;align-items:center;gap:8px}
+#st{width:9px;height:9px;border-radius:50%;background:transparent;display:inline-block}
+#st.ok{background:var(--ok)}#st.busy{background:var(--acc)}#st.pending{background:var(--warn)}#st.error{background:var(--bad)}
+.hb{border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:10px;padding:8px 12px;font:inherit;font-size:14px;cursor:pointer}
+.hb.pri{background:var(--acc);color:var(--onacc);border-color:var(--acc);font-weight:500}
+main{padding:8px 16px 96px;max-width:640px;margin:0 auto}
+section{margin-top:20px}
+h2{font-size:15px;font-weight:700;margin:0 0 10px;color:var(--mut)}
+h2 span{font-weight:500;margin-left:4px}
+.pills{display:flex;flex-wrap:wrap;gap:8px}
+.pill{display:flex;flex-direction:column;align-items:flex-start;gap:1px;padding:9px 14px;border-radius:999px;border:1.5px solid var(--line);background:var(--card);color:var(--fg);font:inherit;text-align:left;cursor:pointer;touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;transition:transform .12s}
+.pill:active{transform:scale(.96)}
+.pill b{font-weight:500;font-size:15px}
+.pill small{font-size:12px;color:var(--mut)}
+.pill.once{border-style:dashed}
+.pill.planned{background:var(--acc);border-color:var(--acc);color:var(--onacc)}
+.pill.planned small{color:var(--onacc);opacity:.8}
+.hint{margin:0;color:var(--mut);font-size:14px}
+#sheet{position:fixed;inset:0;background:rgba(10,15,22,.5);display:none;align-items:flex-end;justify-content:center;z-index:20}
+#sheet.open{display:flex}
+#sheetBody{width:100%;max-width:640px;max-height:88%;overflow:auto;background:var(--card);border-radius:20px 20px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom,0px))}
+#sheetBody h3{margin:0 0 4px;font-size:18px}
+.sub{margin:0 0 12px;color:var(--mut);font-size:14px}
+.btn{display:block;width:100%;padding:12px;margin-top:8px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--fg);font:inherit;font-size:15px;cursor:pointer;text-align:center}
+.btn.pri{background:var(--acc);color:var(--onacc);border-color:var(--acc);font-weight:500}
+.btn.bad{color:var(--bad)}
+.row{display:flex;gap:8px}.row .btn{flex:1}
+input[type=text],input[type=password],input[type=date],textarea{width:100%;padding:11px 12px;margin-top:8px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--fg);font:inherit;font-size:16px}
+textarea{height:110px;font-family:ui-monospace,Menlo,monospace;font-size:12px}
+.chk{display:flex;gap:8px;align-items:flex-start;margin-top:12px;font-size:14px;color:var(--mut)}
+.chk input{margin-top:3px}
+.day{font-size:13px;font-weight:700;color:var(--mut);margin:14px 0 4px}
+.ev{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--line);font-size:15px}
+.ev span{flex:1}.ev small{color:var(--mut)}
+.ev button{border:0;background:none;color:var(--mut);font-size:18px;padding:4px 8px;cursor:pointer}
+.sep{height:1px;background:var(--line);margin:20px 0 16px}
+#toast{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);display:none;align-items:center;gap:12px;background:var(--fg);color:var(--bg);padding:10px 12px 10px 16px;border-radius:14px;font-size:14px;z-index:30;max-width:92%}
+#toast.on{display:flex}
+#toast button{border:0;background:none;color:var(--acc);font:inherit;font-weight:700;cursor:pointer}
+</style>
+</head>
+<body>
+<header>
+  <h1>Home <i id="st" title=""></i></h1>
+  <button class="hb" id="bHist">History</button>
+  <button class="hb" id="bSync">Sync</button>
+  <button class="hb pri" id="bNew">+ New</button>
+</header>
+<main id="app"></main>
+<div id="sheet"><div id="sheetBody"></div></div>
+<div id="toast"><span id="toastTxt"></span><button id="toastUndo">Undo</button></div>
+<script>
+(function(){
+var KEY='home-chores-v1',CFG_KEY='home-chores-sync-v1',OUT_KEY='home-chores-outbox-v1';
+var $=function(s){return document.querySelector(s)};
+var uid=function(){return Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-3)};
+var esc=function(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})};
+function lj(k,d){try{var r=localStorage.getItem(k);if(r)return JSON.parse(r)}catch(e){}return d}
+function sj(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+function seed(){var d={Cleaning:['Vacuum','Mop floors','Clean bathroom','Wipe kitchen'],Laundry:['Wash clothes','Change bedsheets','Iron'],'Stocking up':['Groceries','Cleaning supplies'],Food:['Plan meals','Clear out fridge']},c=[];
+for(var k in d)d[k].forEach(function(n){c.push({id:uid(),name:n,cat:k,once:false,planned:false})});return{chores:c,log:[]}}
+var S=lj(KEY,null);if(!S||!Array.isArray(S.chores)||!Array.isArray(S.log))S=seed();
+function save(){sj(KEY,S)}
+var cp=function(c){return{id:c.id,name:c.name,cat:c.cat,once:!!c.once,planned:!!c.planned}};
+
+/* ---------- sync ---------- */
+var cfg=lj(CFG_KEY,{url:'',key:''}),outbox=lj(OUT_KEY,[]),seq=0,busy=false,pulling=false,stat=cfg.url?'ok':'off',statErr='';
+outbox.forEach(function(o){if(o.q>seq)seq=o.q});
+function setStat(s,err){stat=s;statErr=err||'';var el=$('#st');el.className=s==='off'?'':s;el.title=statText();var m=$('#syncMsg');if(m)m.textContent=statText()}
+function statText(){return({off:'Not connected. Your data stays on this phone.',ok:'Synced with your sheet.',busy:'Syncing...',pending:'Changes waiting to sync ('+outbox.length+').',error:'Can’t sync: '+statErr+' Changes are kept on this phone and will retry.'})[stat]}
+function nice(e){var m=e&&e.message||'';if(m==='unauthorized')return'the secret word does not match the one in the script.';if(m==='bad-reply')return'the address did not answer like your script. Check that it ends in /exec and that access is set to Anyone.';return'could not reach the sheet (offline, or wrong address).'}
+function parse(r){return r.text().then(function(t){try{return JSON.parse(t)}catch(e){throw new Error('bad-reply')}}).then(function(d){if(d&&d.error)throw new Error(d.error);return d})}
+function get(){return fetch(cfg.url+(cfg.url.indexOf('?')<0?'?':'&')+'key='+encodeURIComponent(cfg.key)).then(parse)}
+function post(p){return fetch(cfg.url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(p)}).then(parse)}
+function enq(op){if(!cfg.url)return;op.q=++seq;if(op.t==='replaceAll')outbox=[];outbox.push(op);sj(OUT_KEY,outbox);setStat('pending');flush()}
+function flush(){
+if(!cfg.url||busy)return Promise.resolve();
+if(!outbox.length){setStat('ok');return Promise.resolve()}
+busy=true;setStat('busy');var batch=outbox.slice(),mq=batch[batch.length-1].q;
+return post({key:cfg.key,ops:batch}).then(function(){outbox=outbox.filter(function(o){return o.q>mq});sj(OUT_KEY,outbox);busy=false;return outbox.length?flush():setStat('ok')})
+.catch(function(e){busy=false;setStat('error',nice(e))})}
+function validData(d){return d&&Array.isArray(d.chores)&&Array.isArray(d.log)}
+function pull(){
+if(!cfg.url||pulling)return Promise.resolve();
+if(outbox.length||busy)return flush().then(function(){if(!outbox.length&&!busy)return pull()});
+pulling=true;setStat('busy');
+return get().then(function(d){if(!validData(d))throw new Error('bad-reply');pulling=false;
+if(outbox.length){flush();return}
+S={chores:d.chores,log:d.log};save();render();setStat('ok')}).catch(function(e){pulling=false;setStat('error',nice(e))})}
+document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')pull()});
+window.addEventListener('online',function(){pull()});
+
+/* ---------- helpers ---------- */
+var sod=function(t){var x=new Date(t);x.setHours(0,0,0,0);return x.getTime()};
+function ago(t){var d=Math.round((sod(Date.now())-sod(t))/864e5);if(d<=0)return'today';if(d===1)return'yesterday';if(d<60)return d+' days ago';return Math.round(d/30)+' months ago'}
+function lastTs(id){var m=0;S.log.forEach(function(e){if(e.chore===id&&e.ts>m)m=e.ts});return m}
+function find(id){return S.chores.filter(function(c){return c.id===id})[0]}
+function pill(c){var t=lastTs(c.id),s=c.once?(t?'one-off, done '+ago(t):'one-off'):(t?'last: '+ago(t):'not done yet');
+return'<button class="pill'+(c.planned?' planned':'')+(c.once?' once':'')+'" data-id="'+esc(c.id)+'"><b>'+esc(c.name)+'</b><small>'+s+'</small></button>'}
+function cats(){var a=[];S.chores.forEach(function(c){var k=c.cat||'Other';if(a.indexOf(k)<0)a.push(k)});return a}
+function render(){
+var pl=S.chores.filter(function(c){return c.planned}),h='';
+h+='<section><h2>Planned<span>'+pl.length+'</span></h2><div class="pills">'+(pl.length?pl.map(pill).join(''):'<p class="hint">Nothing planned yet. Tap a pill to plan it, tap again to mark it done. Press and hold for more options.</p>')+'</div></section>';
+cats().forEach(function(k){var it=S.chores.filter(function(c){return(c.cat||'Other')===k&&!c.planned});if(it.length)h+='<section><h2>'+esc(k)+'</h2><div class="pills">'+it.map(pill).join('')+'</div></section>'});
+if(!S.chores.length)h+='<p class="hint">No tasks yet. Use + New to add your first one.</p>';
+$('#app').innerHTML=h}
+
+/* ---------- actions ---------- */
+var undoInfo=null,tt=null;
+function toast(msg,undo){$('#toastTxt').textContent=msg;$('#toastUndo').style.display=undo?'':'none';$('#toast').classList.add('on');clearTimeout(tt);tt=setTimeout(function(){$('#toast').classList.remove('on');undoInfo=null},5000)}
+$('#toastUndo').onclick=function(){var u=undoInfo;undoInfo=null;$('#toast').classList.remove('on');if(!u)return;
+S.log=S.log.filter(function(x){return x.id!==u.logId});
+var c=find(u.prev.id);if(c){c.planned=u.prev.planned}else S.chores.push(u.prev);
+save();render();enq({t:'logDel',id:u.logId});enq({t:'choreSet',c:cp(u.prev)})};
+function complete(id,ts){var c=find(id);if(!c)return;var prev=cp(c);
+var e={id:uid(),chore:c.id,name:c.name,cat:c.cat,ts:ts||Date.now()};
+S.log.push(e);c.planned=false;
+if(c.once)S.chores=S.chores.filter(function(x){return x.id!==id});
+save();render();undoInfo={logId:e.id,prev:prev};
+enq({t:'logAdd',e:e});enq(c.once?{t:'choreDel',id:id}:{t:'choreSet',c:cp(c)});toast('Done: '+c.name,true)}
+function tap(id){var c=find(id);if(!c)return;if(!c.planned){c.planned=true;save();render();enq({t:'choreSet',c:cp(c)})}else complete(id)}
+var app=$('#app'),lp=null,fired=false;
+app.addEventListener('pointerdown',function(e){var p=e.target.closest('.pill');if(!p)return;fired=false;lp=setTimeout(function(){fired=true;try{navigator.vibrate&&navigator.vibrate(15)}catch(_){}menu(p.dataset.id)},500)});
+['pointerup','pointerleave','pointercancel'].forEach(function(t){app.addEventListener(t,function(){clearTimeout(lp)})});
+app.addEventListener('contextmenu',function(e){if(e.target.closest('.pill'))e.preventDefault()});
+app.addEventListener('click',function(e){var p=e.target.closest('.pill');if(!p)return;if(fired){fired=false;return}tap(p.dataset.id)});
+
+/* ---------- sheets (dialogs) ---------- */
+function openSheet(h,id){var b=$('#sheetBody');b.innerHTML=h;b.dataset.id=id||'';$('#sheet').classList.add('open')}
+function closeSheet(){$('#sheet').classList.remove('open')}
+function today(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function menu(id){var c=find(id);if(!c)return;var t=lastTs(id);
+openSheet('<h3>'+esc(c.name)+'</h3><p class="sub">'+esc(c.cat||'Other')+(c.once?' (one-off)':'')+' · '+(t?'last done '+ago(t):'not done yet')+'</p>'
++'<button class="btn pri" data-act="done">Mark done now</button>'
++'<input type="date" id="dOn" value="'+today()+'" max="'+today()+'"><button class="btn" data-act="doneOn">Mark done on this date</button>'
++(c.planned?'<button class="btn" data-act="unplan">Remove from plan</button>':'')
++(t?'<button class="btn" data-act="undoLast">Undo last completion</button>':'')
++'<button class="btn" data-act="hist">See history</button><button class="btn" data-act="edit">Edit</button>'
++'<button class="btn bad" data-act="del">Delete task</button><button class="btn" data-act="close">Close</button>',id)}
+function form(id){var c=id?find(id):null;
+openSheet('<h3>'+(c?'Edit task':'New task')+'</h3><input type="text" id="fName" placeholder="Task name" maxlength="40" value="'+esc(c?c.name:'')+'">'
++'<input type="text" id="fCat" list="cl" placeholder="Category, e.g. Cleaning" maxlength="24" value="'+esc(c?c.cat:'')+'"><datalist id="cl">'+cats().map(function(k){return'<option value="'+esc(k)+'">'}).join('')+'</datalist>'
++'<label class="chk"><input type="checkbox" id="fOnce"'+(c&&c.once?' checked':'')+'><span>One-off: disappears when done, stays in history</span></label>'
++'<div class="row"><button class="btn" data-act="close">Cancel</button><button class="btn pri" data-act="save">Save</button></div>',id)}
+function hist(id){var L=S.log.filter(function(e){return!id||e.chore===id}).sort(function(a,b){return b.ts-a.ts}),c=id&&find(id),h='<h3>History'+(id?': '+esc(c?c.name:(L[0]?L[0].name:'')):'')+'</h3>';
+if(id&&L.length>1){var gap=Math.round((L[0].ts-L[L.length-1].ts)/864e5/(L.length-1));h+='<p class="sub">Done '+L.length+' times, about every '+Math.max(gap,1)+' days on average.</p>'}else h+='<p class="sub">'+(L.length?'Most recent first.':'Nothing logged yet.')+'</p>';
+var last='';L.slice(0,300).forEach(function(e){var d=new Date(e.ts),k=d.toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short'});
+if(k!==last){h+='<div class="day">'+k+'</div>';last=k}
+h+='<div class="ev"><span>'+esc(e.name)+(id?'':' <small>'+esc(e.cat||'')+'</small>')+'</span><button data-act="rmlog" data-lid="'+esc(e.id)+'" aria-label="Delete entry">×</button></div>'});
+h+='<button class="btn" data-act="close">Close</button>';openSheet(h,id)}
+function syncSheet(){
+openSheet('<h3>Sync and backup</h3><p class="sub" id="syncMsg"></p>'
++'<input type="text" id="sUrl" placeholder="Script web app address (ends in /exec)" autocapitalize="off" autocomplete="off" spellcheck="false" value="'+esc(cfg.url)+'">'
++'<input type="text" id="sKey" placeholder="Secret word" autocapitalize="off" autocomplete="off" spellcheck="false" value="'+esc(cfg.key)+'">'
++'<button class="btn pri" data-act="sConnect">Save and connect</button>'
++(cfg.url?'<button class="btn" data-act="sNow">Sync now</button><button class="btn" data-act="sPull">Replace this phone with the sheet’s data</button><button class="btn" data-act="sPush">Replace the sheet with this phone’s data</button><button class="btn bad" data-act="sOff">Disconnect this phone</button>':'')
++'<div class="sep"></div><h3>Manual backup</h3><p class="sub">Copy this text somewhere safe. To restore, paste it back and replace.</p><textarea id="bk">'+esc(JSON.stringify(S))+'</textarea>'
++'<button class="btn" data-act="copy">Copy to clipboard</button><button class="btn" data-act="import">Replace data with text above</button><button class="btn" data-act="close">Close</button>');
+setStat(stat,statErr)}
+$('#bNew').onclick=function(){form()};$('#bHist').onclick=function(){hist()};$('#bSync').onclick=syncSheet;
+function say(t){var m=$('#syncMsg');if(m)m.textContent=t}
+function connect(){
+var u=$('#sUrl').value.trim(),k=$('#sKey').value.trim();
+if(!/^https:\/\/script\.google\.com\/.+/.test(u)){say('That does not look like a script address. It starts with https://script.google.com and ends in /exec.');return}
+if(!k){say('Enter the secret word you set in the script.');return}
+cfg={url:u,key:k};sj(CFG_KEY,cfg);say('Connecting...');
+get().then(function(d){if(!validData(d))throw new Error('bad-reply');
+var remoteEmpty=!d.chores.length&&!d.log.length;
+if(remoteEmpty){outbox=[];enq({t:'replaceAll',chores:S.chores.map(cp),log:S.log});syncSheet();say('Connected. Uploading this phone’s '+S.chores.length+' tasks to your sheet...');return}
+if(S.log.length){syncSheet();setStat('ok');say('Connected. Your sheet already has data and so does this phone. Choose which one to keep with the buttons below.');return}
+S={chores:d.chores,log:d.log};save();render();setStat('ok');syncSheet();say('Connected. Loaded '+d.chores.length+' tasks and '+d.log.length+' history entries from your sheet.')})
+.catch(function(e){setStat('error',nice(e));say('Not connected: '+nice(e))})}
+$('#sheet').addEventListener('click',function(e){
+if(e.target.id==='sheet'){closeSheet();return}
+var b=e.target.closest('[data-act]');if(!b)return;var a=b.dataset.act,id=$('#sheetBody').dataset.id,c=id&&find(id);
+function arm(msg){if(b.dataset.armed)return true;b.dataset.armed=1;b.textContent=msg;return false}
+if(a==='close')closeSheet();
+else if(a==='done'){closeSheet();complete(id)}
+else if(a==='doneOn'){var v=$('#dOn').value;closeSheet();complete(id,v&&v!==today()?new Date(v+'T12:00:00').getTime():Date.now())}
+else if(a==='unplan'){c.planned=false;save();render();enq({t:'choreSet',c:cp(c)});closeSheet()}
+else if(a==='undoLast'){var m=null;S.log.forEach(function(x){if(x.chore===id&&(!m||x.ts>m.ts))m=x});if(m){S.log=S.log.filter(function(x){return x!==m});save();render();enq({t:'logDel',id:m.id})}closeSheet()}
+else if(a==='hist')hist(id);
+else if(a==='edit')form(id);
+else if(a==='del'){if(arm('Tap again to delete (history is kept)')){S.chores=S.chores.filter(function(x){return x.id!==id});save();render();enq({t:'choreDel',id:id});closeSheet()}}
+else if(a==='save'){var n=$('#fName').value.trim();if(!n){$('#fName').focus();return}var k=$('#fCat').value.trim()||'Other',o=$('#fOnce').checked;
+if(!c){c={id:uid(),planned:false};S.chores.push(c)}c.name=n;c.cat=k;c.once=o;save();render();enq({t:'choreSet',c:cp(c)});closeSheet()}
+else if(a==='rmlog'){S.log=S.log.filter(function(x){return x.id!==b.dataset.lid});save();render();enq({t:'logDel',id:b.dataset.lid});hist(id)}
+else if(a==='sConnect')connect();
+else if(a==='sNow'){say('Syncing...');pull().then(function(){syncSheet()})}
+else if(a==='sPull'){if(arm('Tap again: this phone’s data will be replaced')){say('Loading...');get().then(function(d){if(!validData(d))throw new Error('bad-reply');outbox=[];sj(OUT_KEY,outbox);S={chores:d.chores,log:d.log};save();render();setStat('ok');syncSheet();say('Loaded '+d.chores.length+' tasks and '+d.log.length+' history entries.')}).catch(function(e){setStat('error',nice(e))})}}
+else if(a==='sPush'){if(arm('Tap again: the sheet’s data will be replaced')){enq({t:'replaceAll',chores:S.chores.map(cp),log:S.log});say('Uploading...')}}
+else if(a==='sOff'){if(arm('Tap again to disconnect (data stays on this phone)')){cfg={url:'',key:''};sj(CFG_KEY,cfg);outbox=[];sj(OUT_KEY,outbox);setStat('off');syncSheet()}}
+else if(a==='copy'){var ta=$('#bk');ta.select();try{navigator.clipboard.writeText(ta.value).catch(function(){document.execCommand('copy')})}catch(_){try{document.execCommand('copy')}catch(__){}}b.textContent='Copied'}
+else if(a==='import'){if(arm('Tap again to replace everything')){try{var o2=JSON.parse($('#bk').value);if(!Array.isArray(o2.chores)||!Array.isArray(o2.log))throw 0;S={chores:o2.chores,log:o2.log};save();render();enq({t:'replaceAll',chores:S.chores.map(cp),log:S.log});closeSheet();toast('Data restored',false)}catch(_){b.textContent='That text is not valid backup data';delete b.dataset.armed}}}
+});
+render();setStat(stat);
+if(cfg.url)pull();
+})();
+</script>
+</body>
+</html>
